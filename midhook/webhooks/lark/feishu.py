@@ -1,14 +1,15 @@
-import hashlib
 import base64
+import datetime
+import hashlib
 import hmac
 
 import httpx
-import datetime
-
 from pydantic import BaseModel
+
 
 class FContent(BaseModel):
     text: str
+
 
 class FRequest(BaseModel):
     timestamp: int
@@ -45,4 +46,3 @@ class Sender:
 
         r = httpx.post(self.hook, data=request.json())
 
-        print(r.status_code, r.text)
