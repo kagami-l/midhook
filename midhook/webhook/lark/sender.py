@@ -1,5 +1,4 @@
 import json
-import uuid
 from datetime import datetime, timedelta
 
 import httpx
@@ -47,18 +46,15 @@ class MessageSender(Sender):
                 "content": json.dumps({"text": content}),
                 "receive_id": receive_id,
                 "msg_type": "text",
-                # "uuid": uuid.uuid4().hex,
             }
-            response = client.post(url, headers=headers, params=params, json=data)
-
-            res = response.json()
+            client.post(url, headers=headers, params=params, json=data)
 
 
 class ReplySender(Sender):
     def _get_url(self, message_id):
         return f"https://open.feishu.cn/open-apis/im/v1/messages/{message_id}/reply"
 
-    def send_reply(self, message_id, content):
+    def send(self, message_id, content):
         with httpx.Client() as client:
             url = self._get_url(message_id)
             token = self._get_token()
@@ -67,7 +63,5 @@ class ReplySender(Sender):
             data = {
                 "content": json.dumps({"text": content}),
                 "msg_type": "text",
-                # "uuid": uuid.uuid4().hex,
             }
-            response = client.post(url, headers=headers, json=data)
-            res = response.json()
+            client.post(url, headers=headers, json=data)

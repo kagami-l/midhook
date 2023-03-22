@@ -6,8 +6,6 @@ load_dotenv()
 
 
 class LarkConfig:
-    SECRET = os.getenv("FEISHU_SECRET")
-    HOOK = os.getenv("FEISHU_HOOK")
     EncryptKey = os.getenv("LARK_ENCRYPT_KEY")
     Verification = os.getenv("LARK_VERIFICATION")
     App_ID = os.getenv("LARK_APP_ID")
@@ -15,7 +13,7 @@ class LarkConfig:
 
 
 class GitlabConfig:
-    SECRET = os.getenv("GITLAB_SECRET")
+    Secret = os.getenv("GITLAB_SECRET")
 
 
 class GLBotConfig:

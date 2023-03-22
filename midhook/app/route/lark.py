@@ -1,22 +1,12 @@
-import hashlib
 import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel
 
 from midhook.app.route.model import BaseResponse
 from midhook.config import LarkConfig
-from midhook.webhooks.lark.receiver import receiver
-from midhook.webhooks.lark.security import decrypt_body, verify_signature
-
-# def gen_signature(timestamp, nonce, encrypt_key):
-
-
-#     bytes_b1 = (timestamp + nonce + encrypt_key).encode('utf-8')
-#     bytes_b = bytes_b1 + body
-#     h = hashlib.sha256(bytes_b)
-#     signature = h.hexdigest()
+from midhook.webhook.lark.receiver import receiver
+from midhook.webhook.lark.security import decrypt_body, verify_signature
 
 
 async def from_lark(
@@ -47,7 +37,7 @@ async def from_lark(
 router = APIRouter(dependencies=[Depends(from_lark)])
 
 
-@router.post("/test_lark")
+@router.post("/lark_hook")
 async def lark_event(req: Request):
     encrypted = await req.json()
     body = decrypt_body(encrypted["encrypt"], LarkConfig.EncryptKey)

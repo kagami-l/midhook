@@ -1,113 +1,41 @@
-from enum import Enum
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict
 
-from pydantic import BaseModel, Extra, validator
-
-from midhook.bridge.gitlab_lark import GLBot
+from midhook.bridge.gl_bot import GLBot
 from midhook.bridge.notification import NotificationType
-
-
-class WebhookEvent(Enum):
-    # Currently only support 2 events
-    Comment = "Note Hook"
-    MergeRequest = "Merge Request Hook"
-    Other = "Other"
-
-
-class GitlabBase(BaseModel):
-    class Config:
-        extra = Extra.allow
-
-
-class User(GitlabBase):
-    id: str
-    name: str
-    email: str
-
-
-class Project(GitlabBase):
-    id: str
-    name: str
-    url: str
-
-
-class Repository(GitlabBase):
-    name: str
-    url: str
-
-
-class User(GitlabBase):
-    id: str
-    name: str
-    username: str
-
-
-class MergeRequestChanges(GitlabBase):
-    reviewers: Optional[List[User]]
-
-    @validator("reviewers", pre=True)
-    def only_current_reviewers(cls, value):
-        return [User.parse_obj(usr) for usr in value.get("current", [])]
-
-
-class MergeRequest(GitlabBase):
-    author_id: str
-    iid: str
-    title: str
-    url: str
-    target_project_id: str
-    assignee_ids: Optional[List[str]]
-    reviewer_ids: Optional[List[str]]
-    action: Optional[str]
-    detailed_merge_status: Optional[str]
-
-
-class Payload(GitlabBase):
-    project: Project
-    user: Optional[User]
-    object_attributes: Optional[Dict]
-    changes: Optional[Dict]
-
-
-class CommentTarget(Enum):
-    commit = "Commit"
-    merge_request = "MergeRequest"
-    issue = "Issue"
-    snippet = "Snippet"
-
-
-class Comment(GitlabBase):
-    author_id: str
-    note: str
-    noteable_type: str
-
-
-EventHandler = Callable[[WebhookEvent], str]
+from midhook.webhook.gitlab.schema import (
+    Comment,
+    CommentTarget,
+    Event,
+    EventHandler,
+    MergeRequest,
+    MergeRequestChanges,
+    Payload,
+)
 
 
 class Receiver:
     def __init__(self) -> None:
-        self._handlers: Dict[WebhookEvent, EventHandler] = {}
+        self._handlers: Dict[Event, EventHandler] = {}
 
     @classmethod
-    def parse_event(cls, headers) -> WebhookEvent:
+    def parse_event(cls, headers) -> Event:
         """
         Parse the event type from the headers.
         """
         try:
-            event = WebhookEvent(headers["x-gitlab-event"])
+            event = Event(headers["x-gitlab-event"])
         except ValueError:
-            event = WebhookEvent.Other
+            event = Event.Other
         return event
 
-    def register(self, event_type: WebhookEvent) -> Callable:
+    def register(self, event_type: Event) -> Callable:
         def decorator(func: Callable):
             self._handlers[event_type] = func
             return func
 
         return decorator
 
-    def handle_event(self, event: WebhookEvent, body: dict) -> str:
+    def handle_event(self, event: Event, body: dict) -> str:
         event_handler = self._handlers.get(event, None)
         if not event_handler:
             return "Ignore this event"
@@ -119,7 +47,7 @@ class Receiver:
 receiver = Receiver()
 
 
-@receiver.register(WebhookEvent.MergeRequest)
+@receiver.register(Event.MergeRequest)
 def mr_event_handler(payload: Payload):
     """
     Currently we only care about
@@ -130,8 +58,6 @@ def mr_event_handler(payload: Payload):
     res = "Unsupported event"
     merge_request = MergeRequest.parse_obj(payload.object_attributes)
     project = payload.project
-    if merge_request.action in ["approval", "approved", "merge"]:
-        pass
 
     if merge_request.action == "update":
         changes = MergeRequestChanges.parse_obj(payload.changes)
@@ -167,7 +93,7 @@ def mr_event_handler(payload: Payload):
     return res
 
 
-@receiver.register(WebhookEvent.Comment)
+@receiver.register(Event.Comment)
 def comment_handler(payload: Payload):
     """
     Currently we only care about comment on a merge request with reviewers.

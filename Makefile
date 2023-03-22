@@ -8,6 +8,7 @@ run-prod:
 
 check:
 	@black --check $(checkfiles)
+	@ruff check $(checkfiles) --fix
 
 style:
 	@isort -src $(checkfiles)

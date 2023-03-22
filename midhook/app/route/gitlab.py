@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
 from midhook.app.route.model import BaseResponse
 from midhook.config import GitlabConfig
-from midhook.webhooks.gitlab.receiver import WebhookEvent, receiver
+from midhook.webhook.gitlab.receiver import receiver
 
 
 def from_gitlab(
@@ -10,7 +10,7 @@ def from_gitlab(
     x_gitlab_event: str = Header(...),
 ):
     """ """
-    if x_gitlab_token != GitlabConfig.SECRET:
+    if x_gitlab_token != GitlabConfig.Secret:
         raise HTTPException(detail="Not allowed", status_code=401)
 
 
