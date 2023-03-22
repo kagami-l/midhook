@@ -1,8 +1,10 @@
-import lmdb
-import pickle
-from midhook.config import GLBotConfig
-from typing import Any, List, Tuple
 import os
+import pickle
+from typing import Any, List, Tuple
+
+import lmdb
+
+from midhook.config import GLBotConfig
 
 
 class BaseDB:
@@ -147,15 +149,16 @@ class BotData(BaseDB):
 
         self.put(key, (lark_id, lark_name))
 
-    def get_lark_user_from_gitlab_user(self, user_ids: List[str]) -> List[Tuple[str, str]]:
+    def get_lark_user_from_gitlab_user(
+        self, user_ids: List[str]
+    ) -> List[Tuple[str, str]]:
         values = []
         for user_id in user_ids:
-
             key = self._user_key(user_id)
             val = self.get(key, ("", f"gitlab_user_{user_id}"))
             values.append(val)
         return values
-    
+
     def get_all_user_accounts(self) -> List[Tuple[str, str, str]]:
         # gitlab_user_id, lark_user_id, lark_user_name
         accounts = []

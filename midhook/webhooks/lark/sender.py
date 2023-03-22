@@ -1,8 +1,11 @@
-import httpx
-from midhook.config import LarkConfig
-from datetime import datetime, timedelta
 import json
 import uuid
+from datetime import datetime, timedelta
+
+import httpx
+
+from midhook.config import LarkConfig
+
 
 class Sender:
     app_id = LarkConfig.App_ID
@@ -33,14 +36,13 @@ class MessageSender(Sender):
     def _get_url(self):
         return "https://open.feishu.cn/open-apis/im/v1/messages"
 
-
-    def send(self, content: str, receive_id: str, receive_id_type:str ="chat_id"):
+    def send(self, content: str, receive_id: str, receive_id_type: str = "chat_id"):
         with httpx.Client() as client:
             url = self._get_url()
             token = self._get_token()
             headers = {"Content-Type": "string", "Authorization": f"Bearer {token}"}
 
-            params = {"receive_id_type":receive_id_type}
+            params = {"receive_id_type": receive_id_type}
             data = {
                 "content": json.dumps({"text": content}),
                 "receive_id": receive_id,
@@ -49,7 +51,7 @@ class MessageSender(Sender):
             }
             response = client.post(url, headers=headers, params=params, json=data)
 
-            res= response.json()
+            res = response.json()
 
 
 class ReplySender(Sender):
@@ -63,10 +65,9 @@ class ReplySender(Sender):
             headers = {"Content-Type": "string", "Authorization": f"Bearer {token}"}
 
             data = {
-                "content": json.dumps({"text":content}),
+                "content": json.dumps({"text": content}),
                 "msg_type": "text",
                 # "uuid": uuid.uuid4().hex,
             }
-            response  = client.post(url, headers=headers, json=data)
-            res= response.json()
-
+            response = client.post(url, headers=headers, json=data)
+            res = response.json()

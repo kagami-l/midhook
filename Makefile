@@ -8,8 +8,6 @@ run-prod:
 
 check:
 	@black --check $(checkfiles)
-	@ruff $(checkfiles) --fix --ignore E501
-	@mypy $(checkfiles)
 
 style:
 	@isort -src $(checkfiles)

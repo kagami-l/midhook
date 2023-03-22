@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel
-from midhook.app.route.model import BaseResponse
-
-from midhook.webhooks.lark.security import decrypt_body, verify_signature
-from midhook.webhooks.lark.receiver import receiver
-from midhook.config import LarkConfig
-
+import hashlib
+import json
 from typing import Optional
 
-import json
-import hashlib
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from pydantic import BaseModel
+
+from midhook.app.route.model import BaseResponse
+from midhook.config import LarkConfig
+from midhook.webhooks.lark.receiver import receiver
+from midhook.webhooks.lark.security import decrypt_body, verify_signature
 
 # def gen_signature(timestamp, nonce, encrypt_key):
 
@@ -19,30 +18,37 @@ import hashlib
 #     h = hashlib.sha256(bytes_b)
 #     signature = h.hexdigest()
 
-async def from_lark(req: Request, 
-                    x_lark_request_nonce:Optional[str] = Header(None),
-                    x_lark_request_timestamp:Optional[str] = Header(None),
-                    x_lark_signature:Optional[str] = Header(None),
-                    ):
 
+async def from_lark(
+    req: Request,
+    x_lark_request_nonce: Optional[str] = Header(None),
+    x_lark_request_timestamp: Optional[str] = Header(None),
+    x_lark_signature: Optional[str] = Header(None),
+):
     data = await req.body()
     body = json.loads(data)
 
     if not body.get("encrypt"):
         raise HTTPException(detail="Not an encrypt request", status_code=401)
-    
+
     if x_lark_request_timestamp and x_lark_request_nonce and x_lark_signature:
-        if not verify_signature(data, x_lark_request_timestamp, x_lark_request_nonce,  x_lark_signature, LarkConfig.EncryptKey):
+        if not verify_signature(
+            data,
+            x_lark_request_timestamp,
+            x_lark_request_nonce,
+            x_lark_signature,
+            LarkConfig.EncryptKey,
+        ):
             raise HTTPException(detail="Invalid signature", status_code=401)
 
     return
+
 
 router = APIRouter(dependencies=[Depends(from_lark)])
 
 
 @router.post("/test_lark")
 async def lark_event(req: Request):
-
     encrypted = await req.json()
     body = decrypt_body(encrypted["encrypt"], LarkConfig.EncryptKey)
 
@@ -58,7 +64,4 @@ async def lark_event(req: Request):
     header, event = receiver.parse_payload(body)
     result = receiver.handle_event(header, event)
 
-
     return BaseResponse(result=result)
-
-

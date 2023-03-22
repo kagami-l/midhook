@@ -1,12 +1,11 @@
-from typing import Dict, Callable
-from pydantic import BaseModel, Extra, validator, root_validator
-from enum import Enum
-from typing import List, Optional, Dict, Tuple
 import json
+from enum import Enum
+from typing import Callable, Dict, List, Optional, Tuple
+
+from pydantic import BaseModel, Extra, root_validator, validator
 
 from midhook.bridge.gitlab_lark import GLBot, GLBotInvalidCommand, GLBotNotACommand
 from midhook.webhooks.lark.sender import ReplySender
-
 
 
 class EventType(Enum):
@@ -36,15 +35,18 @@ class Header(LarkBase):
 class Event(LarkBase):
     pass
 
+
 class MentionIDs(LarkBase):
     user_id: str
     union_id: str
     open_id: str
 
+
 class Mention(LarkBase):
     name: str
     key: str
     id: MentionIDs
+
 
 class Message(LarkBase):
     chat_id: str
@@ -105,7 +107,7 @@ def message_receive_handler(event: Event) -> str:
     message = msg_event.message
     content = message.content
     text = message.content.get("text", None)
-    
+
     sender = ReplySender()
     if not text or len(message.mentions) < 1:
         sender.send_reply(message.message_id, "Talk is cheap, give me your command.")

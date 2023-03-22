@@ -1,10 +1,12 @@
-from pydantic import BaseModel
-from collections import defaultdict
-from typing import Callable, Type, List, Tuple
 from abc import ABC, abstractmethod
+from collections import defaultdict
+from typing import Callable, List, Tuple, Type
+
+from pydantic import BaseModel
+
 from midhook.bridge.notification import NotificationType, NotiMessageMaker, _at_user
-from midhook.webhooks.lark.sender import MessageSender
 from midhook.bridge.storage import bot_data
+from midhook.webhooks.lark.sender import MessageSender
 
 # # TODO: 持久化bot的设置
 # BOT_DATA = {
@@ -53,6 +55,7 @@ from midhook.bridge.storage import bot_data
 #     )
 #     return user_id, user_name
 
+
 class GLBotNotACommand(Exception):
     pass
 
@@ -68,6 +71,22 @@ class Command:
     @abstractmethod
     def execute(self, message, arg_list):
         pass
+
+
+class Help(Command):
+    cmd = "#help"
+    help = "#help, 列出所有命令"
+
+    def execute(self, message, arg_list):
+        pass
+
+
+class Hello(Command):
+    cmd = "#hi"
+    help = "#hi, say hi"
+
+    def execute(self, message, arg_list):
+        return "Hello, there!"
 
 
 class SetProject(Command):
@@ -173,13 +192,6 @@ class RemoveAll(Command):
     def execute(self, message, arg_list):
         bot_data.drop()
         return "已清空所有设置"
-
-class Help(Command):
-    cmd = "#help"
-    help = "#help, 列出所有命令"
-
-    def execute(self, message, arg_list):
-        pass
 
 
 def notify_mr_update_reviewers(project_id, mr_url, reviewer_ids):
@@ -324,6 +336,7 @@ class GLBot:
 
 
 GLBot.register_command(Help)
+GLBot.register_command(Hello)
 GLBot.register_command(SetProject)
 GLBot.register_command(ListProject)
 GLBot.register_command(RemoveProject)
