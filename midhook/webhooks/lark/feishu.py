@@ -45,4 +45,3 @@ class Sender:
         )
 
         r = httpx.post(self.hook, data=request.json())
-

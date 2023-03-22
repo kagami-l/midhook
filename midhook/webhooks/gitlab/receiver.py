@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Extra, validator
 from enum import Enum
-from typing import List, Optional, Dict, Tuple, Callable
+from typing import Callable, Dict, List, Optional, Tuple
+
+from pydantic import BaseModel, Extra, validator
+
 from midhook.bridge.gitlab_lark import GLBot
 from midhook.bridge.notification import NotificationType
 
