@@ -1,5 +1,7 @@
 from typing import Callable, Dict, List, Tuple, Type
+
 from loguru import logger
+
 from midhook.bridge.command import (
     Command,
     GLBotInvalidCommand,
@@ -65,6 +67,7 @@ class GLBot:
         Peek message to see how to process it
         """
         if not self._is_at_me(message):
+            logger.info(f"Not at me, ignore message: {message.message_id}")
             return "Do not care"
 
         sender = ReplySender()
@@ -79,7 +82,7 @@ class GLBot:
                 sender.send(message.message_id, result)
 
         except Exception as e:
-            logger.exception(e)
+            logger.info(e)
             sender.send(message.message_id, str(e))
 
         return "Processed"
@@ -109,7 +112,7 @@ class GLBot:
             res = cmd_cls().execute(message, arg_list)
             return res
         except Exception as e:
-            logger.exception(e)
+            logger.info(e)
             raise GLBotInvalidCommand("Invalid command")
 
     def _validate_command(self, text, mentions) -> Tuple[str, List[str]]:

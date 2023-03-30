@@ -3,9 +3,9 @@ import pickle
 from typing import Any, List, Tuple
 
 import lmdb
+from loguru import logger
 
 from midhook.config import GLBotConfig
-from loguru import logger
 
 
 class BaseDB:

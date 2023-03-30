@@ -67,17 +67,14 @@ def mr_event_handler(payload: Payload):
             res = bot.forward(
                 NotificationType.MRUpdateReviewers,
                 project.id,
-                merge_request.url,
-                merge_request.reviewer_ids,
+                merge_request,
             )
     if merge_request.action == "merge":
         bot = GLBot()
         res = bot.forward(
             NotificationType.MRMerged,
             project.id,
-            merge_request.url,
-            merge_request.assignee_ids,
-            merge_request.reviewer_ids,
+            merge_request,
         )
 
     if merge_request.action == "approved":
@@ -85,9 +82,8 @@ def mr_event_handler(payload: Payload):
         res = bot.forward(
             NotificationType.MRApproved,
             project.id,
-            merge_request.url,
+            merge_request,
             payload.user.id,
-            merge_request.assignee_ids or [merge_request.author_id],
         )
 
     return res
@@ -115,10 +111,8 @@ def comment_handler(payload: Payload):
     res = bot.forward(
         NotificationType.MRAddComment,
         merge_request.target_project_id,
-        merge_request.url,
+        merge_request,
         payload.user.id,
-        merge_request.assignee_ids,
-        merge_request.reviewer_ids,
     )
 
     return res

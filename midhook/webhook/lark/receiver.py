@@ -1,6 +1,5 @@
 from typing import Callable, Dict
 
-
 from midhook.bridge.gl_bot import GLBot
 from midhook.webhook.lark.schema import (
     Event,
