@@ -33,7 +33,7 @@ class Event(LarkBase):
     pass
 
 
-class MentionIDs(LarkBase):
+class LarkIDs(LarkBase):
     user_id: str
     union_id: str
     open_id: str
@@ -42,7 +42,7 @@ class MentionIDs(LarkBase):
 class Mention(LarkBase):
     name: str
     key: str
-    id: MentionIDs
+    id: LarkIDs
 
 
 class Message(LarkBase):

@@ -1,5 +1,6 @@
 from typing import Callable, Dict
 
+
 from midhook.bridge.gl_bot import GLBot
 from midhook.webhook.lark.schema import (
     Event,
@@ -9,7 +10,6 @@ from midhook.webhook.lark.schema import (
     MsgEvent,
     Payload,
 )
-from midhook.webhook.lark.sender import ReplySender
 
 
 class Receiver:
@@ -44,23 +44,12 @@ receiver = Receiver()
 def message_receive_handler(event: Event) -> str:
     msg_event = MsgEvent.parse_obj(event)
     message = msg_event.message
-    text = message.content.get("text", None)
-
-    sender = ReplySender()
-    if not text or len(message.mentions) < 1:
-        sender.send(message.message_id, "Talk is cheap, give me your command.")
 
     bot = GLBot()
 
-    result = None
-    try:
-        result = bot.process(message)
-    except Exception as e:
-        sender.send(message.message_id, str(e))
+    result = bot.peek_message(message)
 
-    if result is not None:
-        sender.send(message.message_id, result)
-    return "OK"
+    return result
 
 
 @receiver.register(EventType.Other)

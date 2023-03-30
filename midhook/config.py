@@ -17,4 +17,6 @@ class GitlabConfig:
 
 
 class GLBotConfig:
+    bot_name = os.getenv("LARK_BOT_NAME") or "git-lark"
+    open_id = os.getenv("LARK_BOT_OPEN_ID") or ""
     data_dir = "./data/gl_bot"

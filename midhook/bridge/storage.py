@@ -5,6 +5,7 @@ from typing import Any, List, Tuple
 import lmdb
 
 from midhook.config import GLBotConfig
+from loguru import logger
 
 
 class BaseDB:
@@ -25,7 +26,8 @@ class BaseDB:
     def _value_to_bytes(self, value: Any) -> bytes:
         try:
             return pickle.dumps(value)
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             raise Exception(f"Failed to pickle value: {value}")
 
     @classmethod
@@ -36,7 +38,8 @@ class BaseDB:
     def _value_from_bytes(self, value: bytes) -> Any:
         try:
             return pickle.loads(value)
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             raise Exception(f"Failed to unpickle value: {value}")
 
     def put(self, key: str, value: Any):
