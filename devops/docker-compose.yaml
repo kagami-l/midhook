@@ -1,0 +1,22 @@
+version: "3"
+services:
+  midhook:
+    image: local/midhook:1
+    restart: always
+    ports:
+      - "12345:12345"
+    env_file: .env
+    volumes:
+      - "./data_prod:/midhook/data"
+    entrypoint:
+        [
+            "gunicorn",
+            "midhook.app.app:app",
+            "--workers",
+            "4",
+            "--worker-class",
+            "uvicorn.workers.UvicornWorker",
+            "--timeout",
+            "300",
+        ]
+    command: ["--bind", "0.0.0.0:12345"]

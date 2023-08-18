@@ -14,7 +14,7 @@ RUN pip install poetry && poetry install --no-root --no-dev
 COPY ../midhook/ /midhook/midhook
 
 ENTRYPOINT ["uvicorn", "midhook.app.app:app", "--host", "0.0.0.0"]
-CMD ["--port", "23518"]
+CMD ["--port", "12345"]
 
 # ENTRYPOINT ["gunicorn", "midhook.app.app:app", "--workers", "8", "--worker-class", "uvicorn.workers.UvicornWorker", "--timeout", "2400"]
-# CMD ["--bind", "0.0.0.0:23518"]
+# CMD ["--bind", "0.0.0.0:12345"]
